@@ -15,7 +15,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All filed are is required");
     }
 
-    const existedUser = User.findOne({ $or: [{ username }, { email }] });
+    const existedUser = await User.findOne({ $or: [{ userName }, { email }] });
 
     if (existedUser) {
         throw new ApiError(
@@ -24,33 +24,35 @@ const registerUser = asyncHandler(async (req, res) => {
         );
     }
 
-    console.log("Request filesssssss:", req.files);
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    const avatarLocalPath = req.files?.avatar?.[0]?.path || "";
+
+    const coverImageLocalPath = req.files?.coverImage?.[0]?.path || "";
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required");
     }
 
     const avtar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(coverImage);
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
     if (!avtar) {
         throw new ApiError(400, "Avatar file is required");
     }
 
-    const user = (
-        await User.create({
-            userName,
-            email,
-            fullName,
-            avatar: avtar.url,
-            coverImage: coverImage?.url || "",
-            password,
-        })
-    ).select("-password -refreshToken");
+    let user = await User.create({
+        userName,
+        email,
+        fullName,
+        avatar: avtar.url,
+        coverImage: coverImage?.url || "",
+        password,
+    });
 
-    console.log("created user: ", user);
+    //.select("-password -refreshToken"); after query database
+
+    user = user.toObject();
+    delete user.password;
+    delete user.refreshToken;
 
     if (!user) {
         throw new ApiError(500, "problem in registering user");
