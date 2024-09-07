@@ -7,6 +7,20 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_ACCESS_TOKEN,
 });
 
+const deleteFilrOnCloudinary = async (cloudinaryImageUrl, fileType) => {
+    try {
+        if (!cloudinaryImageUrl) return null;
+        const publicId = cloudinaryImageUrl.split("/").pop().split(".")[0];
+        const response = await cloudinary.uploader.destroy(publicId, {
+            resource_type: fileType,
+        });
+
+        return response;
+    } catch (error) {
+        console.log("File is not deleted", error);
+    }
+};
+
 const uploadOnCloudinary = async (localFilePath) => {
     try {
         if (!localFilePath) return null;
@@ -23,4 +37,4 @@ const uploadOnCloudinary = async (localFilePath) => {
     }
 };
 
-export { uploadOnCloudinary };
+export { uploadOnCloudinary, deleteFilrOnCloudinary };

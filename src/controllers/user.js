@@ -2,7 +2,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+    uploadOnCloudinary,
+    deleteFilrOnCloudinary,
+} from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 
@@ -238,6 +241,15 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
     if (!avatar) {
         throw new ApiError(400, "Something wrong in uploading file");
+    }
+
+    const urlOfFileToBeDeleted = req.user?.avatar;
+
+    if (urlOfFileToBeDeleted) {
+        const response = await deleteFilrOnCloudinary(
+            urlOfFileToBeDeleted,
+            "image"
+        );
     }
 
     const updatedUser = await User.findByIdAndUpdate(
