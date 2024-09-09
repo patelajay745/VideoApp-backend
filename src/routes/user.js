@@ -7,6 +7,8 @@ import {
     changeCurrentPassword,
     getCurrentUser,
     updateUserAvatar,
+    getUserChannelProfile,
+    getWatchHistory,
 } from "../controllers/user.js";
 import { upload } from "../middlewares/multer.js";
 import { verifyJWT } from "../middlewares/auth.js";
@@ -34,11 +36,14 @@ router.post("/change-password", verifyJWT, changeCurrentPassword);
 
 router.get("/user", verifyJWT, getCurrentUser);
 
-router.post(
+router.patch(
     "/updateUserAvatar",
     verifyJWT,
-    upload.fields([{ name: "avatar", maxCount: 1 }]),
+    upload.single({ name: "avatar", maxCount: 1 }),
     updateUserAvatar
 );
+
+router.get("/c/:username", getUserChannelProfile);
+router.get("/history", verifyJWT, getWatchHistory);
 
 export default router;
