@@ -110,6 +110,10 @@ const loginUser = asyncHandler(async (req, res) => {
     user.refreshToken = refreshToken;
     user = user.toObject();
     delete user.password;
+    delete user.refreshToken;
+    delete user.createdAt;
+    delete user.updatedAt;
+    delete user.__v;
 
     const options = {
         httpOnly: true,
