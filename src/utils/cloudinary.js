@@ -29,11 +29,11 @@ const uploadOnCloudinary = async (localFilePath) => {
             resource_type: "auto",
         });
 
-        fs.unlink(localFilePath, () => console.log("file is removed"));
+        fs.unlink(localFilePath, () => {});
         return response;
     } catch (error) {
         console.log("File is not uploaded", error);
-        await fs.unlink(localFilePath, () => console.log("file is removed"));
+        await fs.unlink(localFilePath, () => {});
     }
 };
 

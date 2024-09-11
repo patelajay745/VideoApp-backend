@@ -237,7 +237,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
-    const avtarLocalPath = req.files?.avatar?.[0]?.path;
+    const avtarLocalPath = req.file?.path;
 
     if (!avtarLocalPath) {
         throw new ApiError(400, "avatar file is missing");
