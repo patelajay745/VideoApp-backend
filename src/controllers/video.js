@@ -9,7 +9,38 @@ import {
 import mongoose from "mongoose";
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
+    const { page = 1, limit = 10, query, sortBy, sortType } = req.query;
+
+    const numberOfVideoToBeSkippedForPagintion = page * limit - limit;
+
+    const sortOptions = {};
+    sortOptions[sortBy] = sortType === "asc" ? 1 : -1;
+
+    // Check if query is provided or not. If provided then a filter object is created to search for videos where the title matches the query
+    const filter = query ? { title: { $regex: query, $options: "i" } } : {};
+
+    const searchResult = await Videos.find(filter)
+        .limit(parseInt(limit))
+        .skip(parseInt(numberOfVideoToBeSkippedForPagintion));
+
+    const totalVideos = await Videos.countDocuments(filter);
+    const totalPages = Math.ceil(totalVideos / limit);
+
+    if (searchResult.length == 0) {
+        throw new ApiError(400, "No videos found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                videos: searchResult,
+                totalPages,
+                currentPage: parseInt(page),
+            },
+            "Videos are Fetched"
+        )
+    );
 });
 const publishVideo = asyncHandler(async (req, res) => {
     const { title, description } = req.body;
