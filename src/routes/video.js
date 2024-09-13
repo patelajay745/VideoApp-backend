@@ -14,7 +14,7 @@ const router = Router();
 
 router.use(verifyJWT);
 
-router.get("/", getAllVideos);
+router.get("/v", getAllVideos);
 router.post(
     "/",
     upload.fields([

@@ -9,7 +9,7 @@ import {
 import mongoose from "mongoose";
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType } = req.query;
+    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
 
     const numberOfVideoToBeSkippedForPagintion = page * limit - limit;
 
@@ -19,7 +19,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
     // Check if query is provided or not. If provided then a filter object is created to search for videos where the title matches the query
     const filter = query ? { title: { $regex: query, $options: "i" } } : {};
 
-    const searchResult = await Videos.find(filter)
+    if (userId) {
+        filter.owner = userId;
+    }
+
+    const searchResult = await Videos.find({ owner: userId })
         .limit(parseInt(limit))
         .skip(parseInt(numberOfVideoToBeSkippedForPagintion));
 
@@ -101,6 +105,8 @@ const getVideoById = asyncHandler(async (req, res) => {
     if (!videoId) {
         throw new ApiError(400, "Please provide videoId");
     }
+
+    console.log("videoid", videoId);
 
     const video = await Videos.aggregate([
         {
