@@ -9,28 +9,21 @@ import {
 import mongoose from "mongoose";
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
+    let { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
 
-    const numberOfVideoToBeSkippedForPagintion = page * limit - limit;
-
-    const sortOptions = {};
-    sortOptions[sortBy] = sortType === "asc" ? 1 : -1;
-
-    // Check if query is provided or not. If provided then a filter object is created to search for videos where the title matches the query
     const filter = query ? { title: { $regex: query, $options: "i" } } : {};
+
+    userId = new mongoose.Types.ObjectId(userId);
 
     if (userId) {
         filter.owner = userId;
     }
 
-    const searchResult = await Videos.find({ owner: userId })
-        .limit(parseInt(limit))
-        .skip(parseInt(numberOfVideoToBeSkippedForPagintion));
+    const aggregate = Videos.aggregate([{ $match: filter }]);
 
-    const totalVideos = await Videos.countDocuments(filter);
-    const totalPages = Math.ceil(totalVideos / limit);
+    const result = await Videos.aggregatePaginate(aggregate, { page, limit });
 
-    if (searchResult.length == 0) {
+    if (result.length == 0) {
         throw new ApiError(400, "No videos found");
     }
 
@@ -38,9 +31,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
         new ApiResponse(
             200,
             {
-                videos: searchResult,
-                totalPages,
-                currentPage: parseInt(page),
+                result,
             },
             "Videos are Fetched"
         )
