@@ -34,7 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
             (field) => field.trim() === ""
         )
     ) {
-        throw new ApiError(400, "All filed are is required");
+        throw new ApiError(400, "All fields are is required");
     }
 
     const existedUser = await User.findOne({ $or: [{ userName }, { email }] });
@@ -107,7 +107,7 @@ const loginUser = asyncHandler(async (req, res) => {
         user._id
     );
 
-    user.refreshToken = refreshToken;
+    // user.refreshToken = refreshToken;
     user = user.toObject();
     delete user.password;
     delete user.refreshToken;
