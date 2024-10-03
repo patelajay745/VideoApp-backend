@@ -1,0 +1,30 @@
+# Node modules and logs
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build output
+dist/
+build/
+
+# Docker files
+Dockerfile*
+.dockerignore
+
+# Tests
+coverage/
+*.test.js
+*.spec.js
